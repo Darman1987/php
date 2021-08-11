@@ -3,23 +3,35 @@ header('Content-Type: application/json');
 
 require("conexion.php");
 
-$conexion = retornarConexion();
+$pdo = retornarConexion();
 
 switch ($_GET['accion']) {
     case 'listar':
-        $datos = mysqli_query($conexion, "select codigo,titulo,horainicio,horafin,colortexto,colorfondo from eventospredefinidos");
-        $resultado = mysqli_fetch_all($datos, MYSQLI_ASSOC);
+        $sql = $pdo->prepare("select codigo,titulo,horainicio,horafin,colortexto,colorfondo from eventospredefinidos");
+        $sql->execute();
+        $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($resultado);
         break;
 
     case 'agregar':
-        $respuesta = mysqli_query($conexion, "insert into eventospredefinidos(titulo,horainicio,horafin,colortexto,colorfondo) values 
-                                                ('$_POST[titulo]','$_POST[horainicio]','$_POST[horafin]','$_POST[colortexto]','$_POST[colorfondo]')");
-        echo json_encode($respuesta);
+        $sql = $pdo->prepare("insert into eventospredefinidos(titulo,horainicio,horafin,colortexto,colorfondo) values 
+                                          (:titulo,:horainicio,:horafin,:colortexto,:colorfondo)");
+        $resultado = $sql->execute(array(
+            "titulo" => $_POST['titulo'],
+            "horainicio" => $_POST['horainicio'],
+            "horafin" => $_POST['horafin'],
+            "colortexto" => $_POST['colortexto'],
+            "colorfondo" => $_POST['colorfondo']
+        ));
+        echo json_encode($resultado);
         break;
 
     case 'borrar':
-        $respuesta = mysqli_query($conexion, "delete from eventospredefinidos where codigo=$_POST[codigo]");
-        echo json_encode($respuesta);
+        $sql = $pdo->prepare("delete from eventospredefinidos where codigo=:codigo");
+        $resultado = $sql->execute(array(
+            "codigo" => $_POST['codigo']
+        ));
+        echo json_encode($resultado);
         break;
+
 }

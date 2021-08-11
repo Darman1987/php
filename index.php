@@ -51,11 +51,12 @@
           <h4 class="text-center">Eventos predefinidos</h4>
           <div id='listaeventospredefinidos'>
 
-            <?php
+          <?php
             require("conexion.php");
-            $conexion = retornarConexion();
-            $datos = mysqli_query($conexion, "SELECT codigo,titulo,horainicio,horafin,colortexto,colorfondo FROM eventospredefinidos");
-            $ep = mysqli_fetch_all($datos, MYSQLI_ASSOC);
+            $pdo = retornarConexion();
+            $sql = $pdo->prepare("SELECT codigo,titulo,horainicio,horafin,colortexto,colorfondo FROM eventospredefinidos");
+            $sql->execute();
+            $ep = $sql->fetchAll(PDO::FETCH_ASSOC);
             foreach ($ep as $fila)
               echo "<div class='fc-event' data-titulo='$fila[titulo]' data-horafin='$fila[horafin]' data-horainicio='$fila[horainicio]' 
                     data-colorfondo='$fila[colorfondo]' data-colortexto='$fila[colortexto]' data-codigo='$fila[codigo]'

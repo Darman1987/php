@@ -3,41 +3,63 @@ header('Content-Type: application/json');
 
 require("conexion.php");
 
-$conexion = retornarConexion();
+$pdo = retornarConexion();
 
 switch ($_GET['accion']) {
     case 'listar':
-        $datos = mysqli_query($conexion, "select codigo as id,
-                                                 titulo as title,
-                                                 descripcion,
-                                                 inicio as start,
-                                                 fin as end,
-                                                 colortexto as textColor,
-                                                 colorfondo as backgroundColor 
-                                            from eventos");
-        $resultado = mysqli_fetch_all($datos, MYSQLI_ASSOC);
+        $sql = $pdo->prepare("select codigo as id,
+                                     titulo as title,
+                                     descripcion,
+                                     inicio as start,
+                                     fin as end,
+                                     colortexto as textColor,
+                                     colorfondo as backgroundColor 
+                                from eventos");
+        $sql->execute();
+        $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($resultado);
         break;
 
     case 'agregar':
-        $respuesta = mysqli_query($conexion, "insert into eventos(titulo,descripcion,inicio,fin,colortexto,colorfondo) values 
-                                                ('$_POST[titulo]','$_POST[descripcion]','$_POST[inicio]','$_POST[fin]','$_POST[colortexto]','$_POST[colorfondo]')");
-        echo json_encode($respuesta);
+        $sql = $pdo->prepare("insert into eventos(titulo,descripcion,inicio,fin,colortexto,colorfondo) values 
+                              (:titulo,:descripcion,:inicio,:fin,:colortexto,:colorfondo)
+        ");
+        $resultado = $sql->execute(array(
+            "titulo" => $_POST['titulo'],
+            "descripcion" => $_POST['descripcion'],
+            "inicio" => $_POST['inicio'],
+            "fin" => $_POST['fin'],
+            "colortexto" => $_POST['colortexto'],
+            "colorfondo" => $_POST['colorfondo'],
+        ));
+        echo json_encode($resultado);
         break;
 
     case 'modificar':
-        $respuesta = mysqli_query($conexion, "update eventos set titulo='$_POST[titulo]',
-                                                                 descripcion='$_POST[descripcion]',
-                                                                 inicio='$_POST[inicio]',
-                                                                 fin='$_POST[fin]',
-                                                                 colortexto='$_POST[colortexto]',
-                                                                 colorfondo='$_POST[colorfondo]'
-                                                            where codigo=$_POST[codigo]");
-        echo json_encode($respuesta);
+        $sql = $pdo->prepare("update eventos set titulo=:titulo,
+                                                     descripcion=:descripcion,
+                                                     inicio=:inicio,
+                                                     fin=:fin,
+                                                     colortexto=:colortexto,
+                                                     colorfondo=:colorfondo
+                                                 where codigo=:codigo");
+        $resultado = $sql->execute(array(
+            "titulo" => $_POST['titulo'],
+            "descripcion" => $_POST['descripcion'],
+            "inicio" => $_POST['inicio'],
+            "fin" => $_POST['fin'],
+            "colortexto" => $_POST['colortexto'],
+            "colorfondo" => $_POST['colorfondo'],
+            "codigo" => $_POST['codigo']
+        ));
+        echo json_encode($resultado);
         break;
 
     case 'borrar':
-        $respuesta = mysqli_query($conexion, "delete from eventos where codigo=$_POST[codigo]");
-        echo json_encode($respuesta);
+        $sql = $pdo->prepare("delete from eventos where codigo=:codigo");
+        $resultado = $sql->execute(array(
+            "codigo" => $_POST['codigo']
+        ));
+        echo json_encode($resultado);
         break;
 }

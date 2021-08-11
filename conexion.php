@@ -5,8 +5,7 @@ function retornarConexion() {
     $usuario="root";
     $clave="";
     $base="base1";
-    $con=mysqli_connect($server,$usuario,$clave,$base) or die("problemas") ;
-    mysqli_set_charset($con,'utf8'); 
-    return $con;
+    return new PDO("mysql:dbname=$base;host=$server", "$usuario","$clave", array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")); 
 }
+
 ?>
