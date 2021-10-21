@@ -2,32 +2,43 @@
 header('Content-Type: application/json');
 require("../conexion.php");
 
-$conexion = retornarConexion();
+$pdo = retornarConexion();
 
 switch ($_GET['accion']) {
     case 'listar':
-        $respuesta = mysqli_query($conexion, "select codigo, descripcion from categorias");
-        $resultado = mysqli_fetch_all($respuesta, MYSQLI_ASSOC);
+        $sql = $pdo->prepare("select codigo, descripcion from categorias");
+        $sql->execute();
+        $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($resultado);
         break;
-    case 'agregar':
-        $respuesta = mysqli_query($conexion, "insert into categorias(descripcion) values ('$_POST[descripcion]')");
-        echo json_encode($respuesta);
-        break;
-    case 'recuperar':
-        $respuesta = mysqli_query($conexion, "select codigo, descripcion from categorias where codigo=$_POST[codigo]");
-        $resultado = mysqli_fetch_all($respuesta, MYSQLI_ASSOC);
-        echo json_encode($resultado);
-        break;
-    case 'borrar':
-        $respuesta = mysqli_query($conexion, "delete from categorias where codigo=".$_POST['codigo']);
-        $respuesta = mysqli_query($conexion, "delete from productos where codigocategoria=".$_POST['codigo']);
-        echo json_encode($respuesta);
-        break;
-    case 'modificar':
-        $respuesta = mysqli_query($conexion, "update categorias set descripcion='$_POST[descripcion]' where codigo=$_POST[codigo]");
-        echo json_encode($respuesta);
-        break;        
-}
 
-?>
+    case 'agregar':
+        $sql = $pdo->prepare("insert into categorias(descripcion) values (:descripcion)");
+        $respuesta = $sql->execute(array("descripcion" => $_POST['descripcion']));
+        echo json_encode($respuesta);
+        break;
+
+    case 'recuperar':
+        $sql = $pdo->prepare("select codigo,descripcion from categorias where codigo=:codigo");
+        $sql->execute(array("codigo" => $_POST['codigo']));
+        $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($resultado);
+        break;
+
+    case 'borrar':
+        $sql = $pdo->prepare("delete from categorias where codigo=:codigo");
+        $sql->execute(array("codigo" => $_POST['codigo']));
+        $sql = $pdo->prepare("delete from productos where codigocategoria=:codigo");
+        $resultado = $sql->execute(array("codigo" => $_POST['codigo']));
+        echo json_encode($resultado);
+        break;
+
+    case 'modificar':
+        $sql = $pdo->prepare("update categorias set descripcion=:descripcion where codigo=:codigo");
+        $respuesta = $sql->execute(array(
+            "descripcion" => $_POST['descripcion'],
+            "codigo" => $_POST['codigo']
+        ));
+        echo json_encode($respuesta);
+        break;
+}

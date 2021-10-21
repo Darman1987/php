@@ -29,9 +29,8 @@
 
     <?php
     require("conexion.php");
-    $con = retornarConexion();
-    $consulta = mysqli_query(
-      $con,
+    $pdo = retornarConexion();
+    $sql = $pdo->prepare(
       "select 
               fact.codigo as codigo,
               date_format(fecha,'%d/%m/%Y') as fecha,
@@ -42,11 +41,9 @@
           join detallefactura as deta on deta.codigofactura=fact.codigo
           group by deta.codigofactura
           order by codigo desc"
-    )
-      or die(mysqli_error($con));
-
-    $filas = mysqli_fetch_all($consulta, MYSQLI_ASSOC);
-
+    );
+    $sql->execute();
+    $filas = $sql->fetchAll(PDO::FETCH_ASSOC);
     ?>
     <h1>Facturas emitidas</h1>
     <table class="table table-striped">
@@ -88,7 +85,7 @@
         <div class="modal-header">
           <h1>¿Realmente quiere borrar la factura?</h1>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div class="modal-footer">

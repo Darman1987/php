@@ -1,19 +1,19 @@
 <?php 
   require("conexion.php");
 
-  $conexion = retornarConexion();
-  
-  $datos = mysqli_query($conexion, "select pro.codigo as codigo,
-                                            descripcion,
-                                            round(deta.precio,2) as precio,
-                                            cantidad,
-                                            round(deta.precio*cantidad,2) as preciototal,
-                                            deta.codigo as coddetalle
-                                        from detallefactura as deta
-                                        join productos as pro on pro.codigo=deta.codigoproducto
-                                        where codigofactura=$_GET[codigofactura]") or die(mysqli_error($conexion));
+  $pdo = retornarConexion();
+  $sql = $pdo->prepare("select pro.codigo as codigo,
+                               descripcion,
+                               round(deta.precio,2) as precio,
+                               cantidad,
+                               round(deta.precio*cantidad,2) as preciototal,
+                               deta.codigo as coddetalle
+                           from detallefactura as deta
+                           join productos as pro on pro.codigo=deta.codigoproducto
+                           where codigofactura=:codigofactura");
+  $sql->execute(array("codigofactura"=>$_GET['codigofactura']));
+  $resultado = $sql->fetchAll(PDO::FETCH_ASSOC);
 
-  $resultado = mysqli_fetch_all($datos, MYSQLI_ASSOC);
   $pago=0;
   foreach ($resultado as $fila) {
       echo "<tr>";

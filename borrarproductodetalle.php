@@ -2,8 +2,10 @@
 header('Content-Type: application/json');
 require("conexion.php");
 
-$conexion = retornarConexion();
 
-$respuesta = mysqli_query($conexion, "delete from detallefactura where codigo=".$_GET['codigo']);
-echo json_encode($respuesta);
+$pdo = retornarConexion();
+$sql = $pdo->prepare("delete from detallefactura where codigo=:codigo");
+$resultado = $sql->execute(array("codigo" => $_GET['codigo']));
+echo json_encode($resultado);
+
 ?>

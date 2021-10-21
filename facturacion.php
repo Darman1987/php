@@ -15,10 +15,10 @@
 
   <?php
   require("conexion.php");
-  $con = retornarConexion();
-  $consulta = mysqli_query($con, "insert into facturas() values ()")
-    or die(mysqli_error($con));
-  $codigofactura = mysqli_insert_id($con);
+  $pdo = retornarConexion();
+  $sql = $pdo->prepare("insert into facturas() values ()");
+  $sql->execute();
+  $codigofactura = $pdo->lastInsertId();
   ?>
 
 
@@ -46,11 +46,9 @@
           <div class="col-lg-3">
             <select class="form-control" id="CodigoCliente">
               <?php
-              $consulta = mysqli_query($con, "select codigo, nombre from clientes")
-                or die(mysqli_error($con));
-
-              $clientes = mysqli_fetch_all($consulta, MYSQLI_ASSOC);
-
+              $sql = $pdo->prepare("select codigo, nombre from clientes");
+              $sql->execute();
+              $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
               echo "<option value='0'>Seleccionar Cliente</option>";
               foreach ($clientes as $cli) {
                 echo "<option value='" . $cli['codigo'] . "'>" . $cli['nombre'] . "</option>";
@@ -98,7 +96,7 @@
         <div class="modal-header">
 
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div class="modal-body">
@@ -107,10 +105,9 @@
             <label>Producto:</label>
             <select class="form-control" id="CodigoProducto">
               <?php
-              $consulta = mysqli_query($con, "select codigo, descripcion, precio from productos")
-                or die(mysqli_error($con));
-
-              $productos = mysqli_fetch_all($consulta, MYSQLI_ASSOC);
+              $sql = $pdo->prepare("select codigo, descripcion, precio from productos");
+              $sql->execute();
+              $productos = $sql->fetchAll(PDO::FETCH_ASSOC);
               foreach ($productos as $pro) {
                 echo "<option value='" . $pro['codigo'] . "'>" . $pro['descripcion'] . '  ($' . $pro['precio'] . ")</option>";
               }
@@ -143,7 +140,7 @@
         <div class="modal-header">
           <h1>Acciones</h1>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div class="modal-footer">
@@ -163,7 +160,7 @@
         <div class="modal-header">
           <h1>¿Realmente quiere borrarlo?</h1>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">×</span>
           </button>
         </div>
         <div class="modal-footer">
